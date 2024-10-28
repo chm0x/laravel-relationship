@@ -106,3 +106,63 @@ $user = User::find(21);
 # the contact property will be null.
 $user->contact->address;
 ```
+
+
+## ONE TO MANY
+
+Real life scenario: the user can create multiple blog posts. Each blogs belongs to a specific user. 
+
+`app/Models/User`
+```
+use Illuminate\Database\Eloquent\Relations\HasMany;
+...
+# ONE TO MANY
+# Make the name in plural. 
+public function posts(): HasMany
+{
+    # arg1: Related Model
+    # arg2: foreign key, example: 'user_id',
+    # arg3: local key, example: 'id'
+    return $this->hasMany(Post::class);
+}
+...
+```
+
+`app/Models/Post`
+```
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+...
+# MANY TO ONE
+# Use singular name
+public function user(): BelongsTo
+{
+    # args1: Related MOdel
+    # args2: Search Foreign Key.
+    return $this->belongsTo(User::class);
+}
+...
+```
+
+Testing with Tinker
+```
+$post = Post::find(1);
+
+$user = $post->user;
+
+# access indivual attributes
+$user = $post->user->name;
+```
+
+Retrieves many posts by a specific User
+```
+$user = User::find(1);
+
+$posts = $user->posts;
+```
+
+Loop for each posts.
+```
+foreach($user->posts  as $post){
+    echo "Title:" . $post->title;
+}
+```

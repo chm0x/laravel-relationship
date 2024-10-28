@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -46,8 +47,16 @@ class User extends Authenticatable
     ];
 
     # ONE TO ONE RELATIONSHIP
+    # singular name.
     public function contact(): HasOne
     {
         return $this->hasOne(Contact::class);
+    }
+
+    # ONE TO MANY
+    # Make the name in plural. 
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 }
