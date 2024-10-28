@@ -320,3 +320,27 @@ foreach($tag->posts as $post){
 }
 ```
 
+## EAGER LOADING
+
+Eager loading is a technique for loading related data up front instead of loading it lazy when it is needed.
+
+Eager loading loads all the necessary data in advance.
+
+Eager loading is a powerful tool for improving performance in Laravel.
+
+### Why useful? 
+
+Eager loading is useful because it helps you to reduce the number of queries that are executed on your DB by loading all the necessary data upfront with eager loading. *When you're not using eager loading, it will pretty much execute a separate query for each related model that you access*.
+
+When you use eager loading, laravel will execute a single query that loads all the related data upfront.
+
+Lets have the difference:
+```
+# This is Lazy Load.
+Post::all();
+
+# Eager Loading
+Post::with('tags')->get();
+
+```
+
