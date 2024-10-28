@@ -108,7 +108,7 @@ $user->contact->address;
 ```
 
 
-## ONE TO MANY
+## ONE TO MANY RELATIONSHIP
 
 Real life scenario: the user can create multiple blog posts. Each blogs belongs to a specific user. 
 
@@ -166,3 +166,157 @@ foreach($user->posts  as $post){
     echo "Title:" . $post->title;
 }
 ```
+
+## MANY TO MANY RELATIONSHIP
+
+Multiple records in the first table associated with multiple records in the second table. 
+
+Many to many relationship is one of the more complex relationships. 
+
+Requires an additional table to store the relationshiops between two tables. This additional table is called a **pivot table**, which plays a crucial role in the Many to Many relationship.
+
+The **pivot table** allows us to store the relationships between the two tables and query the data easily.
+
+Real life example: Relationship between Students and Classes. Each student can be enrolled in multiple classes and each class can have multiple students. 
+
+Another example: Each post can have multiple tags and each tags can be associated with multiple posts.
+
+
+In this example, we'll use Tags and Posts. 
+
+CLI:
+```
+> php artisan make:model Tag -ms --resource
+> php artisan make:model Tag -m
+```
+
+To create a **pivot table**, the name convention should be a combiantion of the singular names of the two tables being related separated by an underscore and an alphabetic order.
+
+***No need a Model***.
+
+ON CLI
+```
+> php artisan make:migration create_post_tag_table
+```
+
+On `app/Models/Post`:
+```
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+...
+# MANY TO MANY
+public function tags(): BelongsToMany
+{
+    # args1: Related Model
+    # args2(optional): Pivot table name. Laravel will automatically generate a pivot
+    # table name by combining the singular names of two tables 
+    # in alphabetic order.
+    // return $this->belongsToMany(Tag::class, 'post_tag');
+    return $this->belongsToMany(Tag::class);
+}
+...
+```
+
+On `app/Models/Tag`
+```
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+...
+public function posts(): BelongsToMany
+{
+    return $this->belongsToMany(Post::class);
+}
+...
+```
+
+On Tinker testing:
+```
+# Insert 5 or more
+Tag::create([
+    'name' => 'Tech',
+    'slug' => 'tech'
+]);
+
+Tag::all();
+```
+
+### attach()
+
+The attach() method is used to insert data into the pivot table, where it will associate the post with tags with the given IDS.
+
+This method does not returns any value, but insert the data into the pivot table.
+
+```
+# Insert ti Pivot table
+
+$tagIds = [1,2,3];
+
+$post = Post::find(1);
+
+
+# returns as NULL.
+$post->tags()->attach($tagIds);
+```
+
+### retrieve fro Pivot Table
+
+```
+$post = Post::find(1);
+
+$post->tags()->attach($tagIds);
+
+$post->tags()->get();
+
+foreach($post->tags as $tag){
+    echo "Tag: " . $tag->name . "\n";
+}
+```
+
+### detach()
+
+The detach() method is used to REMOVE data from a Many-to-Many relationship.
+
+```
+# detach all
+$post->tags()->detach();
+
+# detach a specific one
+$post->tags()->detach(1);
+
+# detach an array of list
+$post->tags()->detach([1,2,3]);
+```
+
+### update- updateExistingPivot() Many-to-Many
+
+The `updateExistingPivot()` method allows you to update a single record on the intermediate table.
+
+```
+Tag::create([
+    'name' => 'UPDATED',
+    'slug' => 'update'
+]);
+
+# Actualizar el ID del tags a por el otro tag.
+# args1: ID relation
+# args2: An array you want to update. Se cambio el id original a por el nuevo.
+$post->tags()->updateExistingPivot(1, [
+    'tag_id' => 4
+]);
+```
+
+INVERSE
+```
+
+# Actualizar los POSTS dentro del Tag
+
+$postIDs = [6,7,8];
+$tag = Tag::find(1);
+
+$tag->posts()->attach($postIDs);
+```
+
+```
+foreach($tag->posts as $post){
+    echo "Posts: " . $post->title . "\n";
+}
+```
+
