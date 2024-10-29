@@ -341,6 +341,68 @@ Post::all();
 
 # Eager Loading
 Post::with('tags')->get();
-
 ```
 
+
+## HAS ONE THROUGH RELATIONSHIP
+
+The 'Has One Through' Relationship allows you to define a direct association between two Models through a **third intermediarie** model. 
+
+This relationship is useful when you need to access the data of the intermediate model to retrieve the data of the second model.
+
+When? When you have relationship between two models that is not direct but has a model in between that connects them.
+
+Examples: user that work on a company, and a company has a phone number. The phone number belongs to the company, but we need to go through the user to get it. This relationship comes in handy.
+
+Examples:
+```
+> php artisan make:model Company -m
+> php artisan make:model PhoneNumber -m
+```
+`app/Models/User.php`
+```
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+...
+public function companyPhoneNumber(): HasOneThrough
+{
+    # arg1: Model Class
+    # arg2: Join to Model Class
+    # arg3: Foreign Key of the first model class
+    # arg4: FOreign key of the second model class
+    # arg5: Local Key to joining (the first class)
+    # arg6: Local key to joining (the second class)
+    // return $this->hasOneThrough(PhoneNumber::class, 
+    //         Company::class,
+    //         'user_id',
+    //         'company_id',
+    //         'id',
+    //         'id'
+    //     );
+    return $this->hasOneThrough(PhoneNumber::class,Company::class );
+}
+...
+```
+
+Testing on Tinker
+```
+Company::create([
+    'name' => 'Apple',
+    'user_id' => 5,
+    
+]);
+
+PhoneNumber::create([
+    'number' => '1122445577',
+    'company_id' => 1,
+]);
+
+# To access phone number from a user;
+$user = User::find(5);
+
+$user->companyPhoneNumber()->get();
+
+$user = User::find(5)->companyPhoneNumber()->get();
+
+$user = User::with('companyPhoneNumber')
+            ->get();
+```

@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -58,5 +59,25 @@ class User extends Authenticatable
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+
+    # company
+    public function companyPhoneNumber(): HasOneThrough
+    {
+        # arg1: Model Class
+        # arg2: Join to Model Class
+        # arg3: Foreign Key of the first model class
+        # arg4: FOreign key of the second model class
+        # arg5: Local Key to joining (the first class)
+        # arg6: Local key to joining (the second class)
+        // return $this->hasOneThrough(PhoneNumber::class, 
+        //         Company::class,
+        //         'user_id',
+        //         'company_id',
+        //         'id',
+        //         'id'
+        //     );
+        return $this->hasOneThrough(PhoneNumber::class,Company::class );
     }
 }
