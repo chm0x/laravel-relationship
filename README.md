@@ -501,5 +501,101 @@ $country = Country::find(2);
 
 # Without parenthesis
 $country->posts;
+```
+
+# POLYMORPHIC RELATIONSHIPS
+
+It helps you to reduce data redundancy as we don't have to create a separate table for each realtionship.
+They also provide a lot more flexibility as they allow us to create complex relationships between models. Another advantage of using polymorphic relationships in Laravel is that they make it easier to manage relationships between models. Instead of having to deal with multiple tables, we can make one single table, which makes the code much cleaner and easier to maintain. 
+
+Disadvantage: Complexity, complex to implement and not be suitable for all projects. Example that may not be suitable: It where there are only a few relationships between tables. The second disadvantage is performance" overhead. It can have a perfomance overhead as they require additional queries to retrieve related data.
+
+
+## ONE TO ONE POLYMORPHIC
+
+This relationship allows a model to belong to more than one other model on a single association.
+
+Reduces the code duplication and it will improve the maintanability.
+
+Real life example: Messaging system. A message model that can belong to either a User or a Group. The User and Group models would be associated with a message  model through a polymorphic. Defining such relationship is useful when you have multiple models that share a common relationship. It also allows you to create a single relationship that can be used across multiple models. 
+
+Example: Storing images that can belong to either an User or a Post.
 
 ```
+> php artisan make:model Image -m
+```
+
+On `app/Models/Image`
+```
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+...
+# The image model is used to represent an image that can
+# belong to EITHER an User or a (mode)Post.
+public function imagenable(): MorphTo
+{
+    return $this->morphTo();
+}
+...
+```
+
+On `app/Models/User`
+```
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+...
+public function image(): MorphOne
+{
+    # args1: Related Model -> Image
+    # args2: Name of the relationship/method of the first arg.
+    return $this->morphOne(Image::class, 'imageable');
+}
+...
+```
+
+On `app/Models/Post`
+```
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+...
+public function image(): MorphOne
+{
+    # args1: Related Model -> Image
+    # args2: Name of the relationship/method of the first arg.
+    return $this->morphOne(Image::class, 'imageable');
+}
+...
+```
+
+On Tinker
+```
+$user = User::find(5);
+
+$image = $user->image()->create([
+    'url' => 'google.com'
+])
+
+$user->image;
+
+# With POST
+$post = Post::find(5);
+
+$image = $post->image()->create([
+    'url' => 'frompost.com'
+]);
+
+# WITH IMAGE
+# has 2 records, 1 from User, and another 1 from Post.
+# Amazing.
+Image::all();
+
+
+# POST WITH IMAGES
+
+/*
+    The "whereHas()" is used to query for related models that
+    meet a certain condition. Example, Check if the post model has a 
+    related image Model where the URl field contains the string of example.
+*/
+$postWithImages = Post::whereHas('image', function($query){
+    $query->where('url', 'like', 'frompost.com');
+})->get();
+```
+

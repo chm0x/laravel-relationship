@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -86,5 +87,13 @@ class User extends Authenticatable
 
     # HAS MANY THROUGH RELATIONSHIP
     
-    
+    # ----------------------------------------------------------------
+
+    # ONE TO ONE POLYMORPHIC
+    public function image(): MorphOne
+    {
+        # args1: Related Model -> Image
+        # args2: Name of the relationship/method of the first arg.
+        return $this->morphOne(Image::class, 'imageable');
+    }
 }
