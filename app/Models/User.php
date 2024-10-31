@@ -65,19 +65,22 @@ class User extends Authenticatable
     # company
     public function companyPhoneNumber(): HasOneThrough
     {
-        # arg1: Model Class
-        # arg2: Join to Model Class
-        # arg3: Foreign Key of the first model class
-        # arg4: FOreign key of the second model class
-        # arg5: Local Key to joining (the first class)
-        # arg6: Local key to joining (the second class)
-        // return $this->hasOneThrough(PhoneNumber::class, 
-        //         Company::class,
-        //         'user_id',
-        //         'company_id',
-        //         'id',
-        //         'id'
-        //     );
         return $this->hasOneThrough(PhoneNumber::class,Company::class );
     }
+
+
+    # HAS ONE OF MANY 
+    # Name Convention: A name that describe the purpose.
+    # Two methods: latestJob() and oldestJob()
+    public function latestJob(): HasOne
+    {
+        return $this->hasOne(Job::class)->latestOfMany();
+    }
+
+    public function oldestJob(): HasOne
+    {
+        return $this->hasOne(Job::class)->oldestOfMany();
+    }
+
+    
 }

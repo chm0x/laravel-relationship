@@ -406,3 +406,41 @@ $user = User::find(5)->companyPhoneNumber()->get();
 $user = User::with('companyPhoneNumber')
             ->get();
 ```
+
+
+## HAS ONE OF MANY (THROUGH)  RELATIONSHIP
+
+In real life; An user has a job portal where the user can apply for multiple jobs and wants to either retrieve the first or last job. That is where the "Has one of Many" relationship comes in handy. 
+
+```
+> php artisan make:model Job -m 
+```
+
+On `app/Models/User.php`
+```
+use Illuminate\Database\Eloquent\Relations\HasOne;
+...
+public function latestJob(): HasOne
+{
+    return $this->hasOne(Job::class)->latestOfMany();
+}
+public function oldestJob(): HasOne
+{
+    return $this->hasOne(Job::class)->oldestOfMany();
+}
+...
+```
+
+On testing in Tinker:
+```
+Job::create([
+    'title' => 'Junior Web Dev',
+    'description' => '1000 per month',
+    'user_id' => 5,
+    'is_active' => true
+]);
+
+User::find(5)->latestJob()->get();
+
+User::find(5)->oldestJob()->get();
+```
