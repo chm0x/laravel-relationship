@@ -82,5 +82,9 @@ class User extends Authenticatable
         return $this->hasOne(Job::class)->oldestOfMany();
     }
 
+    # ----------------------------------------------------------------
+
+    # HAS MANY THROUGH RELATIONSHIP
+    
     
 }

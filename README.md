@@ -443,4 +443,63 @@ Job::create([
 User::find(5)->latestJob()->get();
 
 User::find(5)->oldestJob()->get();
+
+User::find(5)->oldestJob()->toSql();
+```
+
+## HAS MANY THROUGH RELATIONSHIP
+
+This relationship is useful when you want to retrieve data through a Many-to-Many relationship where the intermediate table has an additional column beyond the foreign keys.
+
+Real life scenario: A social network app where users can create posts and each user is associated with a country. In this scenario, has 3 models: User, Post and Country. 
+
+The country modelis associated with many users, and each user is associated with many posts. That Has-To-Many-Through relationship comes in handy. *It where we want to retrieve all the posts associated with a particular country without defining a relationship between both*.
+
+```
+> php artisan make:model Country -m
+```
+
+ON `app/Models/Country.php`
+```
+...
+# name convention: name of the target model in plural form, 
+# This relationship allows the country model to Retrieve 
+# all posts associated with the related user Models.
+public function posts(): HasManyThrough
+{
+    # IT REQUIRES TWO ARGS. 
+    # And has 6 args.
+    # arg1: Final Model
+    # arg2: Intermediate Model
+    # arg3: Foreign Key on User's table (Through): country_id.
+    # arg4: Foreign Key on Post Table (intermediarie): user_id
+    # arg5: Local keys on both country and users: id
+    # arg6: Local keys on both: id
+    return $this->hasManyThrough(Post::class, User::class);
+}
+...
+```
+
+Tinker:
+```
+Country::create([
+    'name' => 'Mexico',
+    'code' => 'MX'
+]);
+
+User::where('id', 5)->update([
+    'country_id' => 2
+]);
+
+# User with his POsts
+User::with('posts')
+    ->where('id', 5)
+    ->get();
+
+# Country
+$country = Country::find(2);
+
+# Without parenthesis
+$country->posts;
+
 ```
