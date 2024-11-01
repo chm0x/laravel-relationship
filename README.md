@@ -710,3 +710,79 @@ $latestImage = $user->latestImage;
 
 $oldestImage = $user->oldestImage;
 ```
+
+## MANY TO MANY POLYMORPHIC
+
+This relationship allows you to create complex data structures that would have been dificult or impossible to create with a traditional many-to-many relationship. 
+
+The power of the many to many polymorphic relationship lies in it flexibility. 
+
+Reason to use: Flexibility. 
+
+In this example: Post, Video and Tag models. The Post and Video models both can have many Tags, and each tag can be associated with many Posts and Videos. 
+
+The Taggable model will create a Many-to-Many Polymorphic relationship between the Tag, Post and Video. 
+```
+> php artisan make:model Taggable -m
+```
+
+On `app/Models/Tag`
+```
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+...
+public function taggables()
+{
+    # arg1: Related Model
+    # arg2: name of the polymorphic relationship
+    return $this->morphToMany(Taggable::class, 'taggable');
+}
+...
+```
+
+On `app/Models/Post`
+```
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+...
+/**
+* This method allows the model to be associated with multiple
+* instance of the Tag and the other way around as well.
+*/
+public function tags(): MorphToMany
+{
+    # arg1: Related Model
+    # arg2: name of the polymorphic relation
+    return $this->morphToMany(Tag::class, 'taggable');
+}
+***
+```
+
+On `app/Models/Video`
+```
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+...
+public function tags():MorphToMany
+{
+    return $this->morphToMany(Tag::class, 'taggable');
+}
+...
+```
+
+Tinker
+```
+Tag::all();
+
+$tagIds = [1,2,3];
+
+
+$post = Post::find(1);
+
+$post->tags()->attach($tagIds);
+
+
+Video::all();
+$video = Video::find(1);
+
+$video->tags()->attach($tagIds);
+
+```
+
