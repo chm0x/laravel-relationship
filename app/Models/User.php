@@ -96,4 +96,16 @@ class User extends Authenticatable
         # args2: Name of the relationship/method of the first arg.
         return $this->morphOne(Image::class, 'imageable');
     }
+
+    public function latestImage(): MorphOne
+    {
+        return $this->morphOne(Image::class, 'imageable')
+                    ->latestOfMany();
+    }
+
+    public function oldestImage()
+    {
+        return $this->morphOne(Image::class, 'imageable')
+                    ->oldestOfMany();
+    }
 }

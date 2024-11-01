@@ -682,3 +682,31 @@ $comment = $video->comments()->create([
 $video->comments;
 $video->comments()->paginate();
 ```
+
+### ONE-TO-MANY POLYMORPHIC: LATEST AND OLDEST
+Another example: User, Image and Post models with Latest and Oldest Image.                                                                   
+`app/Models/User`
+```
+...
+public function latestImage(): MorphOne
+{
+    return $this->morphOne(Image::class, 'imageable')
+                ->latestOfMany();
+}
+
+public function oldestImage()
+{
+    return $this->morphOne(Image::class, 'imageable')
+                ->oldestOfMany();
+}
+...
+```
+
+On tinker
+```
+$user = User::find(5);
+
+$latestImage = $user->latestImage;
+
+$oldestImage = $user->oldestImage;
+```
