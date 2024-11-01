@@ -599,3 +599,86 @@ $postWithImages = Post::whereHas('image', function($query){
 })->get();
 ```
 
+
+## ONE TO MANY POLYMORPHIC
+
+This is used to define a relationship where a single models OWNS any amount of related models. 
+
+**One To Man Polymorphic relationship are used when you need to relate a single model to multiple models in a single association.**
+
+Real life example: Blog can have multiple Comments, but those Comments can come from different types of users, such as registered or anonymous users. With One to Many polymorphic relationship, you can easily associate thoce comments with the post without having to create separate table for each type of user. 
+
+In this example, We'll using poly between 3 models: the Post, Video, and the Comment models.
+
+On CLI
+```
+> php artisan make:model Video -m
+> php artisan make:model Comment -m
+```
+
+`app/Models/Video.php`
+```
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+...
+public function comments(): MorphMany
+{
+    # arg1: Related Model, Comment
+    # arg2: Name of the Morph field, exampel: commentable
+    return $this->morphMany(Comment::class,'commentable');
+}
+...
+```
+
+`app/Models/Post`
+```
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+...
+public function comments(): MorphMany
+{
+    return $this->morphMany(Comment::class, 'commentable');
+}
+...
+```
+
+`app/Models/Comment`
+```
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+...
+public function commentable(): MorphTo
+{
+    return $this->morphTo();
+}
+...
+```
+
+ON tinker
+```
+$post = Post::find(10);
+
+$comment = $post->comments()->create([
+    'body' => 'This is a new comment'
+]);
+
+
+# retrieves posts
+$post->comments;
+
+$post->comments()->simplePaginate();
+
+
+# video
+Video::create([
+    'title' => 'John Wick',
+    'url' => 'google.com',
+    'description' => 'Keanu Reeve is John Wick'
+])
+
+$video = Video::find(1);
+
+$comment = $video->comments()->create([
+    'body' => 'Buena pelicula'
+]);
+
+$video->comments;
+$video->comments()->paginate();
+```
